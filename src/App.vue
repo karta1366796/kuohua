@@ -1,7 +1,8 @@
 <template>
   <div id="nav">
     <router-link to="/">人員列表</router-link> |
-    <router-link to="/login">登入驗證</router-link>
+    <router-link to="/login">登入驗證</router-link> |
+    <router-link to="/file">檔案上傳</router-link>
   </div>
   <router-view />
 </template>
@@ -16,7 +17,7 @@
 
 #nav {
   padding: 30px;
-
+  text-align: center;
   a {
     font-weight: bold;
     color: #2c3e50;

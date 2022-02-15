@@ -16,6 +16,9 @@
               v-model="account"
               :class="{ 'is-invalid': accountStatus }"
             />
+            <div class="invalid-feedback text-center">
+              Please choose a account.
+            </div>
           </div>
         </div>
       </div>
@@ -34,6 +37,9 @@
               v-model="password"
               :class="{ 'is-invalid': passwordStatus }"
             />
+            <div class="invalid-feedback text-center">
+              Please choose a password.
+            </div>
           </div>
         </div>
       </div>
