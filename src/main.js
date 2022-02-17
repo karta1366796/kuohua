@@ -6,5 +6,6 @@ import "bootstrap"
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import "bootstrap-icons/font/bootstrap-icons.css";
+import 'cropperjs/dist/cropper.css';
 
 createApp(App).use(router).use(VueAxios, axios).mount('#app')

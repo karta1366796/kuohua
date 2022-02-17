@@ -364,6 +364,7 @@ export default {
       filterArray: [],
       status: true,
       disable: "true",
+      data: "",
     };
   },
   computed: {
@@ -405,7 +406,7 @@ export default {
         role: this.cheakGroup.sort(function (a, b) {
           return a.length - b.length;
         }),
-        time:
+        time: (this.data =
           Today.getFullYear() +
           " 年 " +
           Today.getMonth() +
@@ -416,7 +417,7 @@ export default {
           Today.getHours() +
           " 時 " +
           Today.getMinutes() +
-          " 分 ",
+          " 分 "),
       };
       this.mainArray.push(obj);
       // 新增完清空
@@ -441,25 +442,13 @@ export default {
     },
     //編輯人員
     edit() {
-      var Today = new Date();
       const obj = {
         account: this.editAccount,
         //利用陣列方法sort對this.cheakGroup排序
         role: this.cheakGroup.sort(function (a, b) {
           return a.length - b.length;
         }),
-        time:
-          Today.getFullYear() +
-          " 年 " +
-          Today.getMonth() +
-          1 +
-          " 月 " +
-          Today.getDate() +
-          " 日 " +
-          Today.getHours() +
-          " 時 " +
-          Today.getMinutes() +
-          " 分 ",
+        time: this.mainArray[this.index].time,
       };
       this.mainArray.splice(this.index, 1, obj);
       //編輯完清空
@@ -467,7 +456,7 @@ export default {
     },
     //清空
     clear() {
-      this.addAccount="";
+      this.addAccount = "";
       this.editAccount = "";
       this.cheakGroup = [];
     },
