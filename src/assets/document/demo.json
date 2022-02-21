@@ -27,7 +27,7 @@
           "model_name": "PRL_Kid's",
           "cell_type_version": "202101110959",
           "relation_version": "202101110959",
-          "table_version": "202101110959"
+          "table_version": "207101110959"
         },
         {
           "field": "TP_PRODUCT_DEVELOPER",
@@ -36,7 +36,7 @@
           "model_name": "PRL_Kid's",
           "cell_type_version": "202101110959",
           "relation_version": "202101110959",
-          "table_version": "202101110959"
+          "table_version": "200101110959"
         },
         {
           "field": "TP_MERCH_DIVISION",
@@ -45,7 +45,7 @@
           "model_name": "PRL_Kid's",
           "cell_type_version": "202101110959",
           "relation_version": "202101110959",
-          "table_version": "202101110959"
+          "table_version": "202001110959"
         }
       ],
       "confiuration_TOMMY": [

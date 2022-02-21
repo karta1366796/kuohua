@@ -53,15 +53,21 @@
             >
               <div class="container">
                 <!-- 選擇檔案類型 -->
-                <div class="row py-4">
+                <div class="row pt-4 pb-3">
                   <div class="col-3 pe-0">
                     <select
                       class="form-select"
                       aria-label="Default select example"
                     >
+                      <!-- <div v-for="(value, name, index) in object">
+                      利用v-for特性取出object的鍵與值 -->
                       <option selected>選擇檔案類型</option>
-                      <option value="1" v-for="item in file[0]" :key="item">
-                        {{ item }}
+                      <option
+                        value="1"
+                        v-for="(value, name) in file.data"
+                        :key="name"
+                      >
+                        {{ name }}
                       </option>
                     </select>
                   </div>
@@ -71,15 +77,67 @@
                       aria-label="Default select example"
                     >
                       <option selected>選擇ERP對應管理</option>
-                      <option value="1">One</option>
-                      <option value="2">Two</option>
-                      <option value="3">Three</option>
+                      <option
+                        value="1"
+                        v-for="(value, name) in selectERP.data"
+                        :key="name"
+                      >
+                        {{ name }}
+                      </option>
                     </select>
                   </div>
                   <div class="col-3">
                     <button class="btn btn btn-info">
                       <i class="fa-solid fa-plus fs-5 pe-1"></i>新增ERP對應管理
                     </button>
+                  </div>
+                </div>
+                <!-- 選擇表格模型 -->
+                <div class="row">
+                  <div class="col-2 pe-0">
+                    <select
+                      class="form-select"
+                      aria-label="Default select example"
+                    >
+                      <option selected>選擇表格模型</option>
+                      <option
+                        value="1"
+                        v-for="(value, name) in selectERP.data"
+                        :key="name"
+                      >
+                        {{ value }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-2 pe-0">
+                    <select
+                      class="form-select"
+                      aria-label="Default select example"
+                    >
+                      <option selected>選擇單元模型</option>
+                      <option value="1">One</option>
+                      <option value="2">Two</option>
+                      <option value="3">Three</option>
+                    </select>
+                  </div>
+                  <div class="col-2">
+                    <select
+                      class="form-select"
+                      aria-label="Default select example"
+                    >
+                      <option selected>選擇關聯模型</option>
+                      <option value="1">One</option>
+                      <option value="2">Two</option>
+                      <option value="3">Three</option>
+                    </select>
+                  </div>
+                  <div class="col-4 ps-0 pb-3">
+                    <input
+                      class="form-control"
+                      type="text"
+                      placeholder="重新命名此版本模型名稱"
+                      aria-label="default input example"
+                    />
                   </div>
                 </div>
               </div>
@@ -112,16 +170,25 @@ export default {
   data() {
     return {
       file: [],
+      selectERP: "",
     };
   },
   methods: {
     //   ajax取得資料
     getList() {
+      // upload_file_option(API)
       this.axios
         .get("http://localhost:3000/upload_file_option")
         .then((response) => {
           console.log(response.data);
-          this.file.push(response.data.data);
+          this.file = response.data;
+        });
+      // get_key_value_mapping
+      this.axios
+        .get("http://localhost:3000/get_key_value_mapping")
+        .then((response) => {
+          console.log(response.data);
+          this.selectERP = response.data;
         });
     },
   },
