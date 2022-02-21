@@ -3,7 +3,8 @@
     <router-link to="/">人員列表</router-link> |
     <router-link to="/login">登入驗證</router-link> |
     <router-link to="/file">檔案上傳</router-link> |
-    <router-link to="/position">座標截圖</router-link>
+    <router-link to="/position">座標截圖</router-link> |
+    <router-link to="/configure">ERP對應管理</router-link>
   </div>
   <router-view />
 </template>

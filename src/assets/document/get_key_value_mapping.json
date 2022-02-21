@@ -1,0 +1,77 @@
+{
+    "result":0,
+    "message":"",
+    "data":{
+        "configuration_PRL":[
+            {
+                "field":"KEY_STATUS",
+                "fieldvalue":[
+                    "status"
+                ],
+                "version_cheak":0,
+                "model_name":"PRL_Kid's",
+                "cell_type_version":"202101110959",
+                "relation_version":"202101110959",
+                "table_version":"202101110959"
+            },
+            {
+                "field":"TP_PRODUCT_DEVELOPER",
+                "fieldvalue":[
+                    "Product Developer"
+                ],
+                "version_cheak":0,
+                "model_name":"PRL_Kid's",
+                "cell_type_version":"202101110959",
+                "relation_version":"202101110959",
+                "table_version":"202101110959"
+            },
+            {
+                "field":"TP_MERCH_DIVISION",
+                "fieldvalue":[
+                    "Merch Division"
+                ],
+                "version_cheak":1,
+                "model_name":"PRL_Kid's",
+                "cell_type_version":"202101110959",
+                "relation_version":"202101110959",
+                "table_version":"202101110959"
+            }
+        ],
+        "confiuration_TOMMY":[
+            {
+                "field":"KEY_STATUS",
+                "fieldvalue":[
+                    "status"
+                ],
+                "version_cheak":0,
+                "model_name":"PRL_Kid's",
+                "cell_type_version":"202101110959",
+                "relation_version":"202101110959",
+                "table_version":"202101110959"
+            },
+            {
+                "field":"TP_PRODUCT_DEVELOPER",
+                "fieldvalue":[
+                    "Product Developer"
+                ],
+                "version_cheak":0,
+                "model_name":"PRL_Kid's",
+                "cell_type_version":"202101110959",
+                "relation_version":"202101110959",
+                "table_version":"202101110959"
+            },
+            {
+                "field":"TP_MERCH_DIVISION",
+                "fieldvalue":[
+                    "Merch Division"
+                ],
+                "version_cheak":1,
+                "model_name":"PRL_Kid's",
+                "cell_type_version":"202101110959",
+                "relation_version":"202101110959",
+                "table_version":"202101110959"
+            }
+        ]
+
+    }
+}

@@ -68,7 +68,11 @@
                   </div>
                   <div
                     class="col mx-2 mt-3 border"
-                    style="height: 470px; overflow-y: scroll"
+                    style="
+                      height: 470px;
+                      overflow-y: scroll;
+                      overflow-x: hidden;
+                    "
                   >
                     <!-- 框選衣服正反面(若無則打叉) -->
                     <div class="row">
@@ -117,7 +121,12 @@
                     <div class="row mt-2 align-items-end">
                       <div class="col-10 ms-1 mt-2">選擇已被辨識出的表格</div>
                       <div class="col-1 text-end">
-                        <i class="fa-solid fa-plus fs-5 fw-bolder"></i>
+                        <i
+                          class="fa-solid fa-plus fs-5 fw-bolder"
+                          data-bs-toggle="modal"
+                          data-bs-target="#exampleModal"
+                          style="cursor: pointer"
+                        ></i>
                       </div>
                       <div class="col mt-1">
                         <select
@@ -137,17 +146,28 @@
                         表格的座標位置(編輯左邊紅色框線)
                       </div>
                       <div class="col-11 border ms-3 p-3 mt-1">
-                        <p>左上pixel值座標:(,)</p>
-                        <p>右上pixel值座標:(,)</p>
-                        <p>左下pixel值座標:(,)</p>
-                        <p class="mb-0">右下pixel值座標:(,)</p>
+                        <p>左上pixel值座標:({{ positionX }},{{ positionY }})</p>
+                        <p>
+                          右上pixel值座標:({{ -positionX }},{{ positionY }})
+                        </p>
+                        <p>
+                          左下pixel值座標:({{ positionX }},{{ -positionY }})
+                        </p>
+                        <p class="mb-0">
+                          右下pixel值座標:({{ -positionX }},{{ -positionY }})
+                        </p>
                       </div>
                     </div>
                     <!-- 選擇表格中的單元格 -->
                     <div class="row mt-2 align-items-end">
                       <div class="col-10 ms-1 mt-2">選擇表格中的單元格</div>
                       <div class="col-1 text-end">
-                        <i class="fa-solid fa-plus fs-5 fw-bolder"></i>
+                        <i
+                          class="fa-solid fa-plus fs-5 fw-bolder"
+                          data-bs-toggle="modal"
+                          data-bs-target="#add"
+                          style="cursor: pointer"
+                        ></i>
                       </div>
                       <div class="col mt-1">
                         <select
@@ -192,6 +212,99 @@
         </div>
       </div>
     </div>
+
+    <!-- +號modal -->
+    <div
+      class="modal fade"
+      id="exampleModal"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">新增表格</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+              <div class="row justify-content-center">
+                <div class="col-auto p-3 mt-1">
+                  <p>左上pixel值座標:({{ positionX }},{{ positionY }})</p>
+                  <p>右上pixel值座標:({{ -positionX }},{{ positionY }})</p>
+                  <p>左下pixel值座標:({{ positionX }},{{ -positionY }})</p>
+                  <p>右下pixel值座標:({{ -positionX }},{{ -positionY }})</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary">
+              新增
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- +號modal -->
+    <div
+      class="modal fade"
+      id="add"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">新增單元格</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row align-items-end">
+              <div class="col-10 ms-1 mt-2">選擇表格中的單元格</div>
+
+              <div class="col mt-1">
+                <select
+                  class="form-select ms-1 w-100"
+                  aria-label="Default select example"
+                >
+                  <option selected>Open this select menu</option>
+                  <option value="1">One</option>
+                  <option value="2">Two</option>
+                  <option value="3">Three</option>
+                </select>
+              </div>
+              <div class="row justify-content-center">
+                <div class="col-auto p-3 pb-0 mt-1">
+                  <p>左上pixel值座標:({{ positionX }},{{ positionY }})</p>
+                  <p>右上pixel值座標:({{ -positionX }},{{ positionY }})</p>
+                  <p>左下pixel值座標:({{ positionX }},{{ -positionY }})</p>
+                  <p>右下pixel值座標:({{ -positionX }},{{ -positionY }})</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary">
+              新增
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -207,6 +320,8 @@ export default {
       imgsrc2: "",
       status1: true,
       status2: true,
+      positionX: "",
+      positionY: "",
     };
   },
   mounted() {
@@ -214,10 +329,20 @@ export default {
   },
   methods: {
     initCropper() {
+      let th = this;
       let cropper = new Cropper(this.$refs.img, {
         viewMode: 1,
         aspectRatio: 16 / 16,
+        crop(event) {
+          console.log(event.detail.x);
+          console.log(event.detail.y);
+          //因為this.$refs.img必須另外設一個th=this
+
+          th.positionX = Math.floor(event.detail.x);
+          th.positionY = Math.floor(event.detail.y);
+        },
       });
+
       this.cropper = cropper;
     },
     saveImg() {
