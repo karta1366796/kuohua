@@ -75,11 +75,13 @@
                     <select
                       class="form-select"
                       aria-label="Default select example"
+                      v-model="ERProle"
+                      @change="decide()"
                     >
-                      <option selected>選擇ERP對應管理</option>
+                      <option selected value="">選擇ERP對應管理</option>
                       <option
-                        value="1"
-                        v-for="(value, name) in selectERP.data"
+                        :value="name"
+                        v-for="(value, name) in selectERP"
                         :key="name"
                       >
                         {{ name }}
@@ -102,10 +104,10 @@
                       <option selected>選擇表格模型</option>
                       <option
                         value="1"
-                        v-for="(value, name) in selectERP.data"
-                        :key="name"
+                        v-for="(value, index) in table"
+                        :key="index"
                       >
-                        {{ value }}
+                        {{ value.table_version }}
                       </option>
                     </select>
                   </div>
@@ -115,9 +117,13 @@
                       aria-label="Default select example"
                     >
                       <option selected>選擇單元模型</option>
-                      <option value="1">One</option>
-                      <option value="2">Two</option>
-                      <option value="3">Three</option>
+                      <option
+                        value="1"
+                        v-for="(value, index) in table"
+                        :key="index"
+                      >
+                        {{ value.cell_type_version }}
+                      </option>
                     </select>
                   </div>
                   <div class="col-2">
@@ -126,9 +132,13 @@
                       aria-label="Default select example"
                     >
                       <option selected>選擇關聯模型</option>
-                      <option value="1">One</option>
-                      <option value="2">Two</option>
-                      <option value="3">Three</option>
+                      <option
+                        value="1"
+                        v-for="(value, index) in table"
+                        :key="index"
+                      >
+                        {{ value.relation_version }}
+                      </option>
                     </select>
                   </div>
                   <div class="col-4 ps-0 pb-3">
@@ -137,9 +147,34 @@
                       type="text"
                       placeholder="重新命名此版本模型名稱"
                       aria-label="default input example"
+
                     />
                   </div>
                 </div>
+                <!-- select2 -->
+                <div class="row justify-content-start ms-auto mt-3 mb-4" v-for="item in table" :key="item" >
+                  <span class="col-1 my-auto" style="width:5%"><input class="form-check-input pe-0" type="checkbox" name="" id=""></span>
+                  <div class="col-10 border pb-2 pt-1">
+                    <div class="col-3 me-5 fs-5  d-inline-block"><p class="mb-0 pt-1 pb-1">{{item.field}}</p></div>
+                      <select
+                        class="js-example-basic-multiple form-select  d-inline"
+                        ref="jsexample"
+                        multiple="multiple"
+                        style="width:70%"
+                      >
+                        <option
+                        value="1"
+                        v-for="(value, index) in table"
+                        :key="index"
+                      >
+                        {{ value.fieldvalue[0] }}
+                      </option>
+                        
+                      </select>
+                    
+                  </div>
+                </div>
+                
               </div>
             </div>
             <div
@@ -166,11 +201,15 @@
 </template>
 
 <script>
+import $ from "jquery";
 export default {
   data() {
     return {
       file: [],
-      selectERP: "",
+      selectERP: {},
+      ERProle: "",
+      table: "",
+      resetName:""
     };
   },
   methods: {
@@ -188,13 +227,36 @@ export default {
         .get("http://localhost:3000/get_key_value_mapping")
         .then((response) => {
           console.log(response.data);
-          this.selectERP = response.data;
+          this.selectERP = response.data.data;
         });
+    },
+    // 判斷configuration_PRL or TOMMY
+    decide() {
+      // PRL
+      if (this.ERProle == "") {
+        this.table = "";
+      } else if (this.ERProle == "configuration_PRL") {
+        this.table = this.selectERP.configuration_PRL;
+      } //TOMMY
+      else {
+        this.table = this.selectERP.confiuration_TOMMY;
+      }
+      $(document).ready(function () {
+      $(".js-example-basic-multiple").select2({
+        tags: true,
+      });
+    });
     },
   },
   mounted() {
     //   ajax取得資料
     this.getList();
+    //select用法
+    $(document).ready(function () {
+      $(".js-example-basic-multiple").select2({
+        tags: true,
+      });
+    });
   },
 };
 </script>
