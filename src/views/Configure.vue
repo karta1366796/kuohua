@@ -58,10 +58,12 @@
                     <select
                       class="form-select"
                       aria-label="Default select example"
+                      :disabled="openStatus"
+                      v-model="selectFile"
                     >
                       <!-- <div v-for="(value, name, index) in object">
                       利用v-for特性取出object的鍵與值 -->
-                      <option selected>選擇檔案類型</option>
+                      <option value="" selected>選擇檔案類型</option>
                       <option
                         value="1"
                         v-for="(value, name) in file.data"
@@ -76,6 +78,7 @@
                       class="form-select"
                       aria-label="Default select example"
                       v-model="ERProle"
+                      :disabled="openStatus"
                       @change="decide()"
                     >
                       <option selected value="">選擇ERP對應管理</option>
@@ -89,21 +92,31 @@
                     </select>
                   </div>
                   <div class="col-3">
-                    <button class="btn btn btn-info">
+                    <button class="btn btn btn-info" v-show="addStatus">
                       <i class="fa-solid fa-plus fs-5 pe-1"></i>新增ERP對應管理
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-info ms-2"
+                      v-show="editStatus"
+                      @click="changeStatus"
+                    >
+                      編輯
                     </button>
                   </div>
                 </div>
                 <!-- 選擇表格模型 -->
-                <div class="row">
+                <div class="row" v-show="isShow">
                   <div class="col-2 pe-0">
                     <select
                       class="form-select"
                       aria-label="Default select example"
+                      v-model="select"
+                      :disabled="openStatus"
                     >
-                      <option selected>選擇表格模型</option>
+                      <option value="" selected>選擇表格模型</option>
                       <option
-                        value="1"
+                        :value="index"
                         v-for="(value, index) in table"
                         :key="index"
                       >
@@ -115,8 +128,10 @@
                     <select
                       class="form-select"
                       aria-label="Default select example"
+                      v-model="select0"
+                      :disabled="openStatus"
                     >
-                      <option selected>選擇單元模型</option>
+                      <option value="" selected>選擇單元模型</option>
                       <option
                         value="1"
                         v-for="(value, index) in table"
@@ -130,8 +145,10 @@
                     <select
                       class="form-select"
                       aria-label="Default select example"
+                      v-model="select1"
+                      :disabled="openStatus"
                     >
-                      <option selected>選擇關聯模型</option>
+                      <option value="" selected>選擇關聯模型</option>
                       <option
                         value="1"
                         v-for="(value, index) in table"
@@ -147,34 +164,61 @@
                       type="text"
                       placeholder="重新命名此版本模型名稱"
                       aria-label="default input example"
-
+                      :disabled="openStatus"
                     />
                   </div>
                 </div>
                 <!-- select2 -->
-                <div class="row justify-content-start ms-auto mt-3 mb-4" v-for="item in table" :key="item" >
-                  <span class="col-1 my-auto" style="width:5%"><input class="form-check-input pe-0" type="checkbox" name="" id=""></span>
+                <div
+                  class="row justify-content-start ms-auto mt-3 mb-4"
+                  v-for="(item, name) in table"
+                  :key="item"
+                >
+                  <span class="col-1 my-auto" style="width: 5%"
+                    ><input
+                      class="form-check-input pe-0"
+                      type="checkbox"
+                      name=""
+                      id=""
+                      :value="name"
+                      v-model="cheakbox"
+                  /></span>
                   <div class="col-10 border pb-2 pt-1">
-                    <div class="col-3 me-5 fs-5  d-inline-block"><p class="mb-0 pt-1 pb-1">{{item.field}}</p></div>
-                      <select
-                        class="js-example-basic-multiple form-select  d-inline"
-                        ref="jsexample"
-                        multiple="multiple"
-                        style="width:70%"
-                      >
-                        <option
+                    <div class="col-3 me-5 fs-5 d-inline-block">
+                      <p class="mb-0 pt-1 pb-1">{{ item.field }}</p>
+                    </div>
+                    <select
+                      class="js-example-basic-multiple form-select d-inline"
+                      ref="jsexample"
+                      multiple="multiple"
+                      style="width: 70%"
+                      :disabled="openStatus"
+                    >
+                      <option
                         value="1"
                         v-for="(value, index) in table"
                         :key="index"
                       >
                         {{ value.fieldvalue[0] }}
                       </option>
-                        
-                      </select>
-                    
+                    </select>
                   </div>
                 </div>
-                
+                <!-- 取消儲存 -->
+                <div class="row mb-3" v-show="saveStatus">
+                  <div class="col d-md-flex justify-content-md-end">
+                    <button
+                      type="button"
+                      class="btn btn-secondary me-2"
+                      @click="chanel()"
+                    >
+                      取消
+                    </button>
+                    <button type="button" class="btn btn-secondary">
+                      儲存
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
             <div
@@ -209,7 +253,17 @@ export default {
       selectERP: {},
       ERProle: "",
       table: "",
-      resetName:""
+      resetName: "",
+      select: "",
+      select0: "",
+      select1: "",
+      cheakbox: [],
+      isShow: false,
+      openStatus: false,
+      saveStatus: false,
+      editStatus: false,
+      addStatus: true,
+      selectFile: "",
     };
   },
   methods: {
@@ -232,20 +286,47 @@ export default {
     },
     // 判斷configuration_PRL or TOMMY
     decide() {
+      this.select = "";
+      this.select0 = "";
+      this.select1 = "";
       // PRL
       if (this.ERProle == "") {
         this.table = "";
+        this.isShow = false;
+        this.saveStatus = false;
       } else if (this.ERProle == "configuration_PRL") {
         this.table = this.selectERP.configuration_PRL;
+        this.isShow = true; //顯示選擇表格模型
+        this.editStatus = true;
+        this.openStatus = true;
       } //TOMMY
       else {
         this.table = this.selectERP.confiuration_TOMMY;
+        this.isShow = true; //顯示選擇表格模型
+        this.editStatus = true;
+        this.openStatus = true;
       }
       $(document).ready(function () {
-      $(".js-example-basic-multiple").select2({
-        tags: true,
+        $(".js-example-basic-multiple").select2({
+          tags: true,
+        });
       });
-    });
+    },
+    //改變disable狀態(按下編輯禁用取消)
+    changeStatus() {
+      this.openStatus = false;
+      this.editStatus = false;
+      this.saveStatus = true;
+      this.addStatus = false;
+    },
+    //取消鍵
+    chanel() {
+      this.addStatus = true;
+      this.ERProle = "";
+      this.isShow = false;
+      this.table = "";
+      this.saveStatus = false;
+      this.selectFile = "";
     },
   },
   mounted() {
