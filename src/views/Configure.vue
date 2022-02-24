@@ -58,7 +58,7 @@
                     <select
                       class="form-select"
                       aria-label="Default select example"
-                      :disabled="openStatus"
+                      :disabled="openStatus || editclick"
                       v-model="selectFile"
                     >
                       <!-- <div v-for="(value, name, index) in object">
@@ -73,12 +73,13 @@
                       </option>
                     </select>
                   </div>
-                  <div class="col-3 pe-0">
+                  <div class="col-3 pe-0" v-show="!textShow">
                     <select
                       class="form-select"
                       aria-label="Default select example"
                       v-model="ERProle"
-                      :disabled="openStatus"
+                      v-show="ERPexist"
+                      :disabled="openStatus || editclick"
                       @change="decide()"
                     >
                       <option selected value="">選擇ERP對應管理</option>
@@ -91,8 +92,12 @@
                       </option>
                     </select>
                   </div>
-                  <div class="col-3">
-                    <button class="btn btn btn-info" v-show="addStatus">
+                  <div class="col-3" v-show="ERPexist">
+                    <button
+                      class="btn btn btn-info"
+                      v-show="addStatus"
+                      @click="addERP()"
+                    >
                       <i class="fa-solid fa-plus fs-5 pe-1"></i>新增ERP對應管理
                     </button>
                     <button
@@ -103,6 +108,43 @@
                     >
                       編輯
                     </button>
+                  </div>
+                  <div class="col-3 ps-2 pb-3" v-show="textShow">
+                    <input
+                      class="form-control"
+                      type="text"
+                      placeholder="重新命名此版本模型名稱"
+                      aria-label="default input example"
+                    />
+                  </div>
+                </div>
+                <!-- 重新選擇檔案類型 -->
+                <div class="row mb-3" v-show="clickEditStatus && ERPclick">
+                  <div class="col-3 pe-0">
+                    <select
+                      class="form-select"
+                      aria-label="Default select example"
+                      v-model="resetfile"
+                    >
+                      <!-- <div v-for="(value, name, index) in object">
+                      利用v-for特性取出object的鍵與值 -->
+                      <option value="" selected>重新選擇檔案類型</option>
+                      <option
+                        value="1"
+                        v-for="(value, name) in file.data"
+                        :key="name"
+                      >
+                        {{ name }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-5">
+                    <input
+                      class="form-control"
+                      type="text"
+                      placeholder="重新命名此ERP對應管理"
+                      aria-label="default input example"
+                    />
                   </div>
                 </div>
                 <!-- 選擇表格模型 -->
@@ -167,7 +209,13 @@
                       :disabled="openStatus"
                     />
                   </div>
+                  <div class="col-2">
+                    <button class="btn btn btn-info" v-show="clickEditStatus">
+                      <i class="fa-solid fa-plus fs-5 pe-1"></i>新增規則
+                    </button>
+                  </div>
                 </div>
+
                 <!-- select2 -->
                 <div
                   class="row justify-content-start ms-auto mt-3 mb-4"
@@ -203,9 +251,12 @@
                       </option>
                     </select>
                   </div>
+                  <div class="col-1 my-auto" v-show="clickEditStatus">
+                    <i class="bi bi-trash-fill"></i>
+                  </div>
                 </div>
                 <!-- 取消儲存 -->
-                <div class="row mb-3" v-show="saveStatus">
+                <div class="row mb-3" v-show="clickEditStatus">
                   <div class="col d-md-flex justify-content-md-end">
                     <button
                       type="button"
@@ -260,10 +311,15 @@ export default {
       cheakbox: [],
       isShow: false,
       openStatus: false,
-      saveStatus: false,
       editStatus: false,
       addStatus: true,
+      ERPexist: true,
+      editclick: false,
+      clickEditStatus: false,
+      resetfile: "",
       selectFile: "",
+      ERPclick: false,
+      textShow: false,
     };
   },
   methods: {
@@ -293,7 +349,6 @@ export default {
       if (this.ERProle == "") {
         this.table = "";
         this.isShow = false;
-        this.saveStatus = false;
       } else if (this.ERProle == "configuration_PRL") {
         this.table = this.selectERP.configuration_PRL;
         this.isShow = true; //顯示選擇表格模型
@@ -314,19 +369,39 @@ export default {
     },
     //改變disable狀態(按下編輯禁用取消)
     changeStatus() {
+      this.editclick = true; //按下編輯選擇ERP檔案類型disabled
       this.openStatus = false;
       this.editStatus = false;
-      this.saveStatus = true;
       this.addStatus = false;
+      //垃圾桶，新增規則，取消儲存顯示，重新選擇檔案類型
+      this.clickEditStatus = true;
+      this.ERPclick = true;
     },
     //取消鍵
     chanel() {
+      this.editclick = false; //按下取消(選擇ERP檔案類型解除disabled)
       this.addStatus = true;
       this.ERProle = "";
       this.isShow = false;
       this.table = "";
-      this.saveStatus = false;
       this.selectFile = "";
+      this.resetfile = "";
+      this.ERPclick = false;
+      //垃圾桶，新增規則，取消儲存隱藏，重新選擇檔案類型
+      this.clickEditStatus = false;
+      if (this.ERPexist == false) {
+        this.ERPexist = true;
+        this.isShow = false;
+        this.clickEditStatus = false;
+        this.textShow = false;
+      }
+    },
+    //按下新增ERP對應管理
+    addERP() {
+      this.ERPexist = false;
+      this.isShow = true;
+      this.clickEditStatus = true;
+      this.textShow = true;
     },
   },
   mounted() {
