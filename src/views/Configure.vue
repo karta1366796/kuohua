@@ -60,12 +60,13 @@
                       aria-label="Default select example"
                       :disabled="openStatus || editclick"
                       v-model="selectFile"
+                      @change="decideERP()"
                     >
                       <!-- <div v-for="(value, name, index) in object">
                       利用v-for特性取出object的鍵與值 -->
                       <option value="" selected>選擇檔案類型</option>
                       <option
-                        value="1"
+                        :value="name"
                         v-for="(value, name) in file.data"
                         :key="name"
                       >
@@ -97,6 +98,7 @@
                       class="btn btn btn-info"
                       v-show="addStatus"
                       @click="addERP()"
+                      :disabled="openStatus"
                     >
                       <i class="fa-solid fa-plus fs-5 pe-1"></i>新增ERP對應管理
                     </button>
@@ -215,6 +217,71 @@
                     </button>
                   </div>
                 </div>
+                <!-- 選擇表格模型(新增ERP) -->
+                <div class="row" v-show="ERPShow">
+                  <div class="col-2 pe-0">
+                    <select
+                      class="form-select"
+                      aria-label="Default select example"
+                      v-model="select"
+                    >
+                      <option value="" selected>選擇表格模型</option>
+                      <option
+                        :value="index"
+                        v-for="(value, index) in formERP.cell_type"
+                        :key="index"
+                      >
+                        {{ value }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-2 pe-0">
+                    <select
+                      class="form-select"
+                      aria-label="Default select example"
+                      v-model="select0"
+                    >
+                      <option value="" selected>選擇單元模型</option>
+                      <option
+                        value="1"
+                        v-for="(value, index) in formERP.relation"
+                        :key="index"
+                      >
+                        {{ value }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-2">
+                    <select
+                      class="form-select"
+                      aria-label="Default select example"
+                      v-model="select1"
+                    >
+                      <option value="" selected>選擇關聯模型</option>
+                      <option
+                        value="1"
+                        v-for="(value, index) in formERP.table"
+                        :key="index"
+                      >
+                        {{ value }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-4 ps-0 pb-3">
+                    <input
+                      class="form-control"
+                      type="text"
+                      placeholder="重新命名此版本模型名稱"
+                      aria-label="default input example"
+                      :disabled="openStatus"
+                    />
+                  </div>
+                  <div class="col-2">
+                    <button class="btn btn btn-info" v-show="clickEditStatus">
+                      <i class="fa-solid fa-plus fs-5 pe-1"></i>新增規則
+                    </button>
+                  </div>
+                </div>
 
                 <!-- select2 -->
                 <div
@@ -252,7 +319,46 @@
                     </select>
                   </div>
                   <div class="col-1 my-auto" v-show="clickEditStatus">
-                    <i class="bi bi-trash-fill"></i>
+                    <i class="bi bi-trash-fill" @click="remove(name)"></i>
+                  </div>
+                </div>
+                <!-- select2(ERP) -->
+                <div
+                  class="row justify-content-start ms-auto mt-3 mb-4"
+                  v-for="(item, name) in ERPtable"
+                  :key="item"
+                >
+                  <span class="col-1 my-auto" style="width: 5%"
+                    ><input
+                      class="form-check-input pe-0"
+                      type="checkbox"
+                      name=""
+                      id=""
+                      :value="name"
+                      v-model="cheakbox"
+                  /></span>
+                  <div class="col-10 border pb-2 pt-1">
+                    <div class="col-3 me-5 fs-5 d-inline-block">
+                      <p class="mb-0 pt-1 pb-1">{{ item.field }}</p>
+                    </div>
+                    <select
+                      class="js-example-basic-multiple form-select d-inline"
+                      ref="jsexample"
+                      multiple="multiple"
+                      style="width: 70%"
+                      :disabled="openStatus"
+                    >
+                      <option
+                        value="1"
+                        v-for="(value, index) in ERPtable"
+                        :key="index"
+                      >
+                        {{ value.fieldvalue[0] }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-1 my-auto" v-show="clickEditStatus">
+                    <i class="bi bi-trash-fill" @click="remove(name)"></i>
                   </div>
                 </div>
                 <!-- 取消儲存 -->
@@ -302,6 +408,8 @@ export default {
     return {
       file: [],
       selectERP: {},
+      modal: [],
+      ERPtable: [],
       ERProle: "",
       table: "",
       resetName: "",
@@ -309,6 +417,7 @@ export default {
       select0: "",
       select1: "",
       cheakbox: [],
+      formERP: [],
       isShow: false,
       openStatus: false,
       editStatus: false,
@@ -320,6 +429,7 @@ export default {
       selectFile: "",
       ERPclick: false,
       textShow: false,
+      ERPShow: false,
     };
   },
   methods: {
@@ -338,6 +448,13 @@ export default {
         .then((response) => {
           console.log(response.data);
           this.selectERP = response.data.data;
+        });
+      // get_rpa_model_list
+      this.axios
+        .get("http://localhost:3000/get_rpa_model_list")
+        .then((response) => {
+          console.log(response.data);
+          this.modal = response.data.models;
         });
     },
     // 判斷configuration_PRL or TOMMY
@@ -383,10 +500,12 @@ export default {
       this.addStatus = true;
       this.ERProle = "";
       this.isShow = false;
-      this.table = "";
+      this.table = [];
       this.selectFile = "";
       this.resetfile = "";
       this.ERPclick = false;
+      this.ERPtable = [];
+      this.ERPShow = false;
       //垃圾桶，新增規則，取消儲存隱藏，重新選擇檔案類型
       this.clickEditStatus = false;
       if (this.ERPexist == false) {
@@ -395,13 +514,46 @@ export default {
         this.clickEditStatus = false;
         this.textShow = false;
       }
+      //重新取得資料
+      this.getList();
     },
     //按下新增ERP對應管理
     addERP() {
       this.ERPexist = false;
-      this.isShow = true;
+      this.isShow = false;
       this.clickEditStatus = true;
       this.textShow = true;
+      this.ERPShow = true;
+    },
+    //選擇檔案類型帶入select和選擇表格模型
+    decideERP() {
+      if (this.ERPShow == false) {
+        return 0;
+      } else if (this.selectFile == "") {
+        this.ERPtable = "";
+        console.log(this.selectERP);
+      } else if (this.selectFile == "PRL") {
+        this.ERPtable = this.selectERP.configuration_PRL;
+        this.formERP = this.modal.PRL_TechPack;
+      } //TOMMY
+      else {
+        this.ERPtable = this.selectERP.confiuration_TOMMY;
+        this.formERP = this.modal.PRL_TOMMY;
+      }
+      $(document).ready(function () {
+        $(".js-example-basic-multiple").select2({
+          tags: true,
+        });
+      });
+    },
+    //刪除功能
+    remove(index) {
+      console.log(index);
+      if (this.table.length > 1) {
+        this.table.splice(index, 1);
+      } else {
+        this.ERPtable.splice(index, 1);
+      }
     },
   },
   mounted() {
