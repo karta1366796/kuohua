@@ -111,12 +111,13 @@
                       編輯
                     </button>
                   </div>
-                  <div class="col-3 ps-2 pb-3" v-show="textShow">
+                  <div class="col-3 ps-2" v-show="textShow">
                     <input
                       class="form-control"
                       type="text"
-                      placeholder="重新命名此版本模型名稱"
+                      placeholder="命名此ERP對應管理"
                       aria-label="default input example"
+                      v-model="reERPname"
                     />
                   </div>
                 </div>
@@ -132,7 +133,7 @@
                       利用v-for特性取出object的鍵與值 -->
                       <option value="" selected>重新選擇檔案類型</option>
                       <option
-                        value="1"
+                        :value="name"
                         v-for="(value, name) in file.data"
                         :key="name"
                       >
@@ -146,6 +147,7 @@
                       type="text"
                       placeholder="重新命名此ERP對應管理"
                       aria-label="default input example"
+                      v-model="newcfgNm"
                     />
                   </div>
                 </div>
@@ -160,8 +162,8 @@
                     >
                       <option value="" selected>選擇表格模型</option>
                       <option
-                        :value="index"
-                        v-for="(value, index) in table"
+                        :value="value.table_version"
+                        v-for="(value, name, index) in table"
                         :key="index"
                       >
                         {{ value.table_version }}
@@ -177,7 +179,7 @@
                     >
                       <option value="" selected>選擇單元模型</option>
                       <option
-                        value="1"
+                        :value="value.cell_type_version"
                         v-for="(value, index) in table"
                         :key="index"
                       >
@@ -194,7 +196,7 @@
                     >
                       <option value="" selected>選擇關聯模型</option>
                       <option
-                        value="1"
+                        :value="value.relation_version"
                         v-for="(value, index) in table"
                         :key="index"
                       >
@@ -209,6 +211,7 @@
                       placeholder="重新命名此版本模型名稱"
                       aria-label="default input example"
                       :disabled="openStatus"
+                      v-model="modelName"
                     />
                   </div>
                   <div class="col-2">
@@ -227,7 +230,7 @@
                     >
                       <option value="" selected>選擇表格模型</option>
                       <option
-                        :value="index"
+                        :value="value"
                         v-for="(value, index) in formERP.cell_type"
                         :key="index"
                       >
@@ -243,7 +246,7 @@
                     >
                       <option value="" selected>選擇單元模型</option>
                       <option
-                        value="1"
+                        :value="value"
                         v-for="(value, index) in formERP.relation"
                         :key="index"
                       >
@@ -259,7 +262,7 @@
                     >
                       <option value="" selected>選擇關聯模型</option>
                       <option
-                        value="1"
+                        :value="value"
                         v-for="(value, index) in formERP.table"
                         :key="index"
                       >
@@ -274,6 +277,7 @@
                       placeholder="重新命名此版本模型名稱"
                       aria-label="default input example"
                       :disabled="openStatus"
+                      v-model="remodelName"
                     />
                   </div>
                   <div class="col-2">
@@ -371,7 +375,11 @@
                     >
                       取消
                     </button>
-                    <button type="button" class="btn btn-secondary">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      @click="save()"
+                    >
                       儲存
                     </button>
                   </div>
@@ -410,6 +418,7 @@ export default {
       selectERP: {},
       modal: [],
       ERPtable: [],
+      // 選擇ERP對應管理v-modal
       ERProle: "",
       table: "",
       resetName: "",
@@ -424,12 +433,24 @@ export default {
       addStatus: true,
       ERPexist: true,
       editclick: false,
+      //重新命名此版本模型
+      modelName: "",
       clickEditStatus: false,
+      //重新選擇檔案v-modal
       resetfile: "",
+      // 選擇檔案類型v-modal
       selectFile: "",
       ERPclick: false,
       textShow: false,
       ERPShow: false,
+      //儲存陣列
+      saveTable: [],
+      //重新命名cfg類型v-modal
+      newcfgNm: "",
+      //命名此ERP對應管理
+      reERPname: "",
+      // 重新命名此版本模型名稱(新增ERP)
+      remodelName: "",
     };
   },
   methods: {
@@ -455,6 +476,13 @@ export default {
         .then((response) => {
           console.log(response.data);
           this.modal = response.data.models;
+        });
+      // autosave_key_value_mapping
+      this.axios
+        .get("http://localhost:3000/autosave_key_value_mapping")
+        .then((response) => {
+          console.log(response.data);
+          this.saveTable = response.data;
         });
     },
     // 判斷configuration_PRL or TOMMY
@@ -496,6 +524,13 @@ export default {
     },
     //取消鍵
     chanel() {
+      //關閉select
+      this.close();
+      //重新取得資料
+      this.getList();
+    },
+    //關閉(初始化)按鈕
+    close() {
       this.editclick = false; //按下取消(選擇ERP檔案類型解除disabled)
       this.addStatus = true;
       this.ERProle = "";
@@ -508,14 +543,16 @@ export default {
       this.ERPShow = false;
       //垃圾桶，新增規則，取消儲存隱藏，重新選擇檔案類型
       this.clickEditStatus = false;
+      //按下新增ERP對應管理
       if (this.ERPexist == false) {
         this.ERPexist = true;
         this.isShow = false;
         this.clickEditStatus = false;
         this.textShow = false;
+        this.select = "";
+        this.select0 = "";
+        this.select1 = "";
       }
-      //重新取得資料
-      this.getList();
     },
     //按下新增ERP對應管理
     addERP() {
@@ -554,6 +591,33 @@ export default {
       } else {
         this.ERPtable.splice(index, 1);
       }
+    },
+    //儲存功能
+    save() {
+      console.log(this.saveTable);
+      if (this.ERPexist == false) {
+        this.saveTable.old_cfg_nm = this.ERProle;
+        this.saveTable.new_cfg_nm = this.reERPname;
+        this.saveTable.old_file_type = this.selectFile;
+        this.saveTable.new_file_type = this.resetfile;
+        this.saveTable.model_name = this.remodelName;
+      } else {
+        this.saveTable.old_cfg_nm = this.ERProle;
+        this.saveTable.new_cfg_nm = this.newcfgNm;
+        this.saveTable.old_file_type = this.selectFile;
+        this.saveTable.new_file_type = this.resetfile;
+        this.saveTable.model_name = this.modelName;
+      }
+      this.saveTable.table_version = this.select;
+      this.saveTable.cell_type_version = this.select0;
+      this.saveTable.relation_version = this.select1;
+      //清空
+      this.modelName = "";
+      this.newcfgNm = "";
+      this.remodelName = "";
+      this.reERPname = "";
+      //初始化select
+      this.close();
     },
   },
   mounted() {
