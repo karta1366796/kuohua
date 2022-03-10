@@ -616,8 +616,17 @@ export default {
       this.newcfgNm = "";
       this.remodelName = "";
       this.reERPname = "";
+      this.select = "";
+      this.select0 = "";
+      this.select1 = "";
       //初始化select
       this.close();
+    },
+    filter() {
+      const b = Object.keys(this.selectERP).filter(function (item) {
+        return item;
+      });
+      console.log(b);
     },
   },
   mounted() {
@@ -629,6 +638,7 @@ export default {
         tags: true,
       });
     });
+    this.filter();
   },
 };
 </script>
