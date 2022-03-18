@@ -6,7 +6,6 @@
     <router-link to="/position">座標截圖</router-link> |
     <router-link to="/configure">ERP對應管理</router-link> |
     <router-link to="/Identify">辨識結果</router-link>
-    <span class="account">account1</span>
   </div>
 
   <router-view />
